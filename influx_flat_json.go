@@ -3,11 +3,11 @@ package main
 import (
 	"encoding/json"
 	"errors"
+	"fmt"
 	"os"
 	"reflect"
 	"strconv"
 	"time"
-        "fmt"
 
 	"github.com/influxdata/influxdb/client/v2"
 )
@@ -179,13 +179,13 @@ func insertData(msg []byte, ignoreKeyList []string) {
 
 	Measurement := "demo"
 
-
 	clientadmin, err := client.NewHTTPClient(client.HTTPConfig{
-                              Addr: "http://localhost:8086",
-                            })
+		Addr: "http://localhost:8086",
+	})
+	defer clientadmin.Close()
 
-        query := client.NewQuery("create database go_influxdemo", "", "")
-        _ , err = clientadmin.Query(query)
+	query := client.NewQuery("create database go_influxdemo", "", "")
+	_, err = clientadmin.Query(query)
 
 	if err != nil {
 		fmt.Printf("\n Error in creating database %s", err.Error())
@@ -216,14 +216,14 @@ func insertData(msg []byte, ignoreKeyList []string) {
 }
 
 func main() {
-     data := []byte(`{"intdata": [10,24,43,56,45,78],
+	data := []byte(`{"intdata": [10,24,43,56,45,78],
                       "floatdata": [56.67, 45.68, 78.12],
                       "nested_data": {
                           "key1": "string_data",
                           "key2": [45, 56],
                           "key3": [60.8, 45.78]
                       }}`)
-     ignorelist := []string{"floatdata", "key2"}
-     fmt.Println(ignorelist)
-     insertData(data, ignorelist)
+	ignorelist := []string{"floatdata", "key2"}
+	fmt.Println(ignorelist)
+	insertData(data, ignorelist)
 }
